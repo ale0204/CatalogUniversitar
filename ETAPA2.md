@@ -1,4 +1,4 @@
-# Etapa II — Persistenta JDBC (PostgreSQL) + Audit CSV
+# Etapa II - Persistenta JDBC (PostgreSQL) + Audit CSV
 
 > Document didactic. Explica **pas cu pas** ce implementam in Etapa II si **de ce**.
 > Fiecare pas are: *Ce facem*, *De ce*, *Fisiere afectate* si nota teoretica.
@@ -28,12 +28,12 @@ Concret, Etapa II = adaugam o a doua implementare:
 
 ```
 IUnitOfWork
-  ├── InMemoryUnitOfWork   (Etapa I — ramane, util pt teste)
-  └── JdbcUnitOfWork       (Etapa II — NOU, vorbeste cu PostgreSQL)
+  ├── InMemoryUnitOfWork   (Etapa I - ramane, util pt teste)
+  └── JdbcUnitOfWork       (Etapa II - NOU, vorbeste cu PostgreSQL)
 
 IRepository<T>
   ├── InMemoryRepository<T>  (Etapa I)
-  └── JdbcRepository<T>      (Etapa II — NOU)
+  └── JdbcRepository<T>      (Etapa II - NOU)
 ```
 
 Si schimbam **o linie** in `Main`.
@@ -95,30 +95,30 @@ demo/
 
 > **Singurele fisiere existente atinse**: `Main.java` (1 linie), `IdGenerator.java`
 > (o metoda noua) si serviciile (un apel de audit per actiune). Entitatile,
-> repository-urile in-memory, orchestratorul `run()` — neschimbate.
+> repository-urile in-memory, orchestratorul `run()` - neschimbate.
 
 ---
 
 ## Pasii de implementare
 
-### Pas 0 — Pregatire mediu  ✅ (facut)
+### Pas 0 - Pregatire mediu(facut)
 - PostgreSQL 17 ruleaza pe `localhost:5432`.
 - Am creat baza de date `catalog`.
 - Urmeaza: descarcam driverul JDBC in `lib/` si il legam in classpath-ul VS Code.
 
-### Pas 1 — Schema bazei de date (`schema.sql`)
+### Pas 1 - Schema bazei de date (`schema.sql`)
 **Ce facem**: scriem `CREATE TABLE` pentru cele 6 entitati si rulam scriptul.
 **De ce**: JDBC scrie/citeste randuri; tabelele trebuie sa existe intai. Coloanele
 oglindesc exact campurile entitatilor. Relatiile prin `*_id` (int) din Etapa I
 devin coloane normale (optional foreign keys).
 
-### Pas 2 — `DatabaseConnection` (singleton)
+### Pas 2 - `DatabaseConnection` (singleton)
 **Ce facem**: o clasa singleton care citeste `database.properties` si ofera un
 `java.sql.Connection` unic.
 **De ce**: enuntul cere "servicii singleton". O singura conexiune partajata =
 o singura poarta catre DB. `getConnection()` returneaza mereu aceeasi instanta.
 
-### Pas 3 — `JdbcRepository<T>` generic (+ `RowMapper`, `StatementBinder`)
+### Pas 3 - `JdbcRepository<T>` generic (+ `RowMapper`, `StatementBinder`)
 **Ce facem**: implementarea generica a `IRepository<T>` cu `PreparedStatement`.
 Partea care difera de la o entitate la alta (numele tabelei, coloanele, cum se
 citeste un rand) o injectam prin doua interfete mici: `RowMapper<T>` (rand -> obiect)
@@ -128,29 +128,29 @@ reflection (magie, greu de depanat), facem maparea **explicita** per entitate.
 Codul SQL repetitiv (SELECT/INSERT/UPDATE/DELETE) sta o singura data in
 `JdbcRepository`; doar maparea e per-entitate. = "serviciu generic de citire/scriere".
 
-### Pas 4 — `JdbcUnitOfWork`
+### Pas 4 - `JdbcUnitOfWork`
 **Ce facem**: implementam `IUnitOfWork` peste JDBC. Creeaza cele 6 `JdbcRepository`,
 tine `Connection`-ul, si la pornire **seedeaza `IdGenerator`** din `MAX(id)` al
 fiecarei tabele. `commit()/rollback()` deleaga la `Connection`.
 **De ce**: punct unic de acces la toate repo-urile JDBC, exact ca `InMemoryUnitOfWork`.
 Seed-ul ID-urilor evita coliziuni de cheie primara la re-rulari.
 
-### Pas 5 — `IdGenerator.seed()` + `Main` (o linie)
+### Pas 5 - `IdGenerator.seed()` + `Main` (o linie)
 **Ce facem**: adaugam `IdGenerator.seed(clasa, valoare)`; schimbam in `Main`
 `new InMemoryUnitOfWork()` cu `new JdbcUnitOfWork()`.
 **De ce**: momentul "platii": demonstram ca arhitectura permite swap-ul cu o linie.
 
-### Pas 6 — `AuditService` (singleton, CSV)
+### Pas 6 - `AuditService` (singleton, CSV)
 **Ce facem**: singleton care scrie in `audit.csv` linii `nume_actiune,timestamp`.
 **De ce**: cerinta 2 din Etapa II. Singleton ca sa scrie toti in acelasi fisier.
 
-### Pas 7 — Apeluri de audit in actiuni
+### Pas 7 - Apeluri de audit in actiuni
 **Ce facem**: in fiecare metoda care corespunde unei actiuni din Etapa I, adaugam
 `AuditService.getInstance().log("numeActiune")`.
 **De ce**: "de fiecare data cand se executa o actiune". Logam la sursa (in servicii),
 nu in orchestrator, ca sa se prinda oricine apeleaza actiunea.
 
-### Pas 8 — Rulare si verificare
+### Pas 8 - Rulare si verificare
 **Ce facem**: rulam aplicatia, verificam ca datele ajung in PostgreSQL
 (`SELECT * FROM student`) si ca `audit.csv` se populeaza.
 **De ce**: dovada ca persistenta si auditul functioneaza end-to-end.
@@ -161,30 +161,14 @@ nu in orchestrator, ca sa se prinda oricine apeleaza actiunea.
 
 JDBC (Java Database Connectivity) = API-ul standard Java pt baze relationale.
 Piesele pe care le folosim:
-- **`Connection`** — sesiunea catre DB. O deschizi o data, o refolosesti.
-- **`PreparedStatement`** — un SQL parametrizat (`INSERT ... VALUES (?, ?)`).
+- **`Connection`** - sesiunea catre DB. O deschizi o data, o refolosesti.
+- **`PreparedStatement`** - un SQL parametrizat (`INSERT ... VALUES (?, ?)`).
   Parametrii `?` se completeaza cu `setInt/setString/...`. Previne SQL injection
   si compileaza interogarea o data.
-- **`ResultSet`** — rezultatul unui `SELECT`, parcurs rand cu rand cu `next()`.
-- **Driver** — JAR-ul specific PostgreSQL care implementeaza JDBC pt acest DB.
+- **`ResultSet`** - rezultatul unui `SELECT`, parcurs rand cu rand cu `next()`.
+- **Driver** - JAR-ul specific PostgreSQL care implementeaza JDBC pt acest DB.
 
 Progresul se actualizeaza in acest document pe masura ce avansam.
-
----
-
-## Status final: TOTI pasii implementati ✅
-
-| Pas | Stare |
-|---|---|
-| 0. Mediu + driver JDBC | ✅ |
-| 1. `schema.sql` (6 tabele) | ✅ |
-| 2. `DatabaseConnection` (singleton) | ✅ |
-| 3. `EntityMapper` + `JdbcRepository<T>` + 6 mappere | ✅ |
-| 4. `JdbcUnitOfWork` (+ seed `IdGenerator`) | ✅ |
-| 5. `IdGenerator.seed()` + `Main` (o linie) | ✅ |
-| 6. `AuditService` (CSV) | ✅ |
-| 7. Apeluri audit in cele 12 actiuni | ✅ |
-| 8. Compilare + rulare + verificare | ✅ |
 
 ---
 
@@ -223,7 +207,7 @@ In **VS Code**: extensia Java vede dependinta `postgresql` din `pom.xml` si o de
 | inscriere | 5 |
 
 Statusul `RETRAS` se vede in `inscriere` (actiunea 11 a persistat corect), iar testul
-"curs plin" arunca `BusinessRuleException` ca in Etapa I — logica de business e neschimbata.
+"curs plin" arunca `BusinessRuleException` ca in Etapa I - logica de business e neschimbata.
 
 **2. `audit.csv`** contine toate cele 12 tipuri de actiuni, ex:
 ```
@@ -241,7 +225,7 @@ afiseazaNoteleStudentului,2026-05-29T15:56:35
 ### 1. ID-urile au "goluri" (1, 4, 9, 16, ...)
 ID-urile sunt generate de client (`IdGenerator`), iar `BaseEntity` ii cere un id in
 constructor. Cand `getAll()` citeste randuri din DB, mapper-ul face `new Student(...)`
-ca sa reconstruiasca obiectul — iar acel constructor **consuma un numar din contor**
+ca sa reconstruiasca obiectul - iar acel constructor **consuma un numar din contor**
 inainte ca `setId()` sa-l suprascrie cu id-ul real din DB. Deci fiecare citire
 "arde" cateva numere de contor. Rezultatul: id-uri noi cu goluri.
 
@@ -251,7 +235,7 @@ cheie primara. Bazele de date reale au si ele goluri in secvente (dupa rollback-
 
 ### 2. Datele se acumuleaza intre rulari
 Pentru ca acum avem persistenta reala, fiecare rulare **adauga** date noi (demo-ul creeaza
-studenti/cursuri noi de fiecare data). Asta NU e bug — exact asta inseamna persistenta.
+studenti/cursuri noi de fiecare data). Asta NU e bug - exact asta inseamna persistenta.
 
 Ca sa controlam asta, `Main` intreaba la pornire:
 ```
@@ -261,7 +245,7 @@ Golesc baza de date inainte de rulare? (y/n):
   si re-seedeaza `IdGenerator` => porneste de la zero, id-uri de la 1.
 - **n** => pastreaza datele existente (utile ca sa DEMONSTREZI persistenta intre rulari).
 
-Acest prompt **nu e cerut de enunt** — e doar o conveniență de demo. Golirea ruleaza doar pe
+Acest prompt **nu e cerut de enunt** - e doar o conveniență de demo. Golirea ruleaza doar pe
 varianta JDBC (verificata cu `instanceof`), deci `Main` ramane scris pe interfata `IUnitOfWork`.
 
 Alternativ, manual din `psql`:
