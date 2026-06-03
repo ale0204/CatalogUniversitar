@@ -1,0 +1,5 @@
+# Sablon de configurare. COPIAZA acest fisier in "database.properties"
+# si completeaza cu parola ta de PostgreSQL.
+db.url=jdbc:postgresql://localhost:5432/catalog
+db.user=postgres
+db.password=PAROLA_TA_AICI

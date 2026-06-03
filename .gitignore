@@ -1,0 +1,17 @@
+# Config local cu parola (NU se urca pe GitHub)
+demo/database.properties
+
+# Fisiere generate la rulare
+demo/audit.csv
+demo/build/
+
+# Build output (in caz ca nu e prins de demo/.gitignore)
+demo/target/
+demo/bin/
+*.class
+
+# Setari locale
+.claude/
+demo/.claude/
+.vscode/
+demo/.vscode/
