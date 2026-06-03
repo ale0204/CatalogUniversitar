@@ -5,7 +5,7 @@
 
 ---
 
-## 0. Recapitulare: de ce Etapa II e usoara
+## 0. Recapitulare
 
 In Etapa I am construit totul pe **interfete**:
 
