@@ -12,8 +12,6 @@ public class IdGenerator {
         return current;
     }
 
-    // Etapa II: la pornire, JdbcUnitOfWork seedeaza contorul cu MAX(id) din baza de date.
-    // Astfel urmatorul nextId() porneste DEASUPRA randurilor existente => fara coliziuni de cheie primara.
     public static void seed(Class<?> entityClass, int nextValue) {
         counters.put(entityClass, nextValue);
     }

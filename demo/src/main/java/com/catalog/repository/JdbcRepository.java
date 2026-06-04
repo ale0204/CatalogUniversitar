@@ -34,7 +34,7 @@ public class JdbcRepository<TEntity extends BaseEntity> implements IRepository<T
                 if (rs.next()) {
                     return mapper.fromResultSet(rs);
                 }
-                return null; // nu exista => null (la fel ca InMemoryRepository)
+                return null;
             }
         } catch (SQLException e) {
             throw new CatalogException("Eroare la getById in " + mapper.tableName() + ": " + e.getMessage());
@@ -59,8 +59,6 @@ public class JdbcRepository<TEntity extends BaseEntity> implements IRepository<T
     @Override
     public void insert(TEntity entity) {
         String[] cols = mapper.columns();
-        // INSERT INTO tabela (col1, col2, ..., id) VALUES (?, ?, ..., ?)
-        // Conventie: coloanele non-id pe pozitiile 1..N, id pe pozitia N+1.
         String sql = "INSERT INTO " + mapper.tableName()
                 + " (" + String.join(", ", cols) + ", id) VALUES ("
                 + placeholders(cols.length + 1) + ")";
@@ -107,7 +105,6 @@ public class JdbcRepository<TEntity extends BaseEntity> implements IRepository<T
         }
     }
 
-    // Construieste sirul "?, ?, ?" cu n semne de intrebare.
     private String placeholders(int n) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < n; i++) {

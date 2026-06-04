@@ -46,8 +46,6 @@ public class JdbcUnitOfWork implements IUnitOfWork {
         seedIdGenerator();
     }
 
-    // Citeste MAX(id) din fiecare tabela si seteaza contorul IdGenerator la MAX+1.
-    // Astfel entitatile noi create in aceasta rulare nu se ciocnesc cu randurile deja existente.
     private void seedIdGenerator() {
         seedFor(Student.class, "student");
         seedFor(Profesor.class, "profesor");
@@ -69,8 +67,6 @@ public class JdbcUnitOfWork implements IUnitOfWork {
         }
     }
 
-    // Goleste toate tabelele si reseteaza contoarele de id.
-    // RESTART IDENTITY => secventele repornesc; CASCADE => respecta foreign keys (sterge in ordinea corecta).
     // Dupa golire, re-seedam IdGenerator ca noile entitati sa porneasca iar de la id=1.
     public void curataToateTabelele() {
         String sql = "TRUNCATE inscriere, nota, curs, materie, profesor, student RESTART IDENTITY CASCADE";
@@ -89,8 +85,6 @@ public class JdbcUnitOfWork implements IUnitOfWork {
     @Override public IRepository<Curs>      getCursRepository()      { return cursRepository; }
     @Override public IRepository<Inscriere> getInscriereRepository() { return inscriereRepository; }
 
-    // autoCommit=true (vezi DatabaseConnection) => fiecare operatie e deja salvata.
-    // Pastram commit/rollback cablate la conexiunea reala pentru cazul cand ar fi nevoie de tranzactii.
     @Override
     public void commit() {
         try {

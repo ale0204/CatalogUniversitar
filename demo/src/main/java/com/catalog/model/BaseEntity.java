@@ -15,9 +15,6 @@ public abstract class BaseEntity {
         return id;
     }
 
-    // Etapa II: necesar pentru a seta id-ul citit din baza de date pe obiectul reconstruit.
-    // La construirea din ResultSet, constructorul atribuie un id nou (via IdGenerator);
-    // mapper-ul il suprascrie cu id-ul real din DB prin aceasta metoda.
     public void setId(int id) {
         this.id = id;
     }

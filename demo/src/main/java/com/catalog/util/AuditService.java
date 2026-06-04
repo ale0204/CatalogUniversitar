@@ -10,7 +10,6 @@ import java.time.format.DateTimeFormatter;
 import com.catalog.exception.CatalogException;
 
 // Singleton: toate actiunile scriu in ACELASI fisier CSV.
-// Structura ceruta de enunt: nume_actiune, timestamp
 public class AuditService {
     private static final String CSV_FILE = "audit.csv";
     private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");

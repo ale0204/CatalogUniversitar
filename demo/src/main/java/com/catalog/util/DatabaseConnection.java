@@ -10,8 +10,6 @@ import java.util.Properties;
 
 import com.catalog.exception.CatalogException;
 
-// Singleton: exista o SINGURA instanta in toata aplicatia, deci o singura conexiune JDBC partajata.
-// Constructor privat + getInstance() => nimeni din afara nu poate face "new DatabaseConnection()".
 public class DatabaseConnection {
     private static final String CONFIG_FILE = "database.properties";
 
@@ -27,8 +25,6 @@ public class DatabaseConnection {
 
         try {
             this.connection = DriverManager.getConnection(url, user, password);
-            // autoCommit=true => fiecare INSERT/UPDATE/DELETE se salveaza imediat.
-            // Astfel CatalogApp (care nu apeleaza commit()) ramane neschimbat.
             this.connection.setAutoCommit(true);
         } catch (SQLException e) {
             throw new CatalogException("Nu m-am putut conecta la baza de date: " + e.getMessage());

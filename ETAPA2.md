@@ -259,6 +259,30 @@ blocheaza) in timp ce rulezi, scrierea in CSV esueaza. Inchide-l inainte de rula
 
 ---
 
+## Meniu interactiv (CRUD vizibil)
+
+La pornire, `Main` arata un meniu principal:
+```
+========== CATALOG UNIVERSITAR ==========
+1. Ruleaza demo-ul automat (cele 12 actiuni)
+2. Meniu interactiv (CRUD: listeaza/adauga/modifica/sterge)
+0. Iesire
+```
+- **Optiunea 1** ruleaza demo-ul vechi (`CatalogApp.run()`) — neschimbat.
+- **Optiunea 2** intra in `CatalogMenu` (clasa noua), care expune **CRUD complet**
+  (Listeaza / Adauga / Modifica / Sterge) pentru **Student, Profesor, Materie, Curs**.
+
+De ce conteaza: operatiile CRUD existau deja in `BaseService`, dar demo-ul nu apela
+niciodata `delete` si chema `update` doar indirect. Meniul **exercita vizibil** tot CRUD-ul,
+in special **Delete** si **Update** — deci intareste dovada pentru cerinta
+"create, read, update si delete pentru cel putin 4 clase".
+
+`CatalogMenu` foloseste **aceleasi servicii** ca demo-ul (nu dubleaza logica) — doar le
+apeleaza pe baza alegerilor din consola. Stergerile prind `CatalogException` si afiseaza un
+mesaj prietenos cand o entitate nu poate fi stearsa (e referita prin foreign key).
+
+---
+
 ## Maparea cerintelor enuntului → cod
 
 | Cerinta Etapa II | Unde e implementata |
